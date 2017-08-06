@@ -9,6 +9,7 @@ public:
 	
 	~TempleImg();
 	IplImage  * img;
+
 	int Tag;
 };
 #endif

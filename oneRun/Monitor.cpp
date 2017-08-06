@@ -71,6 +71,7 @@ void Monitor::Run(){
 	//bool Self = true;
 	int lastn = -1;
 	int lastN = -1;
+	//int be = -1;
 	//BaseNum =  -1;
 
 	//lastn = n;
@@ -85,7 +86,7 @@ void Monitor::Run(){
 		//hBitmap2Ipls(hb,ScreenImg);
 		hBitmap2Ipls(Screen(),ScreenImg);
 		
-		this->Start(lastn,lastN);
+		this->StartRun(lastn,lastN);
 		//if (tmpN >= 0 && tmpN <4) lastN = tmpN;
 		//cvCopy(imgB,imgA);
 		Sleep(500);
@@ -93,67 +94,53 @@ void Monitor::Run(){
 	}
 }
 void Monitor::Start( int & lastn,int &lastN){
-	
-
 
 	int n = this->BlockList[4]->FindChildOne(this->ScreenImg);
 	if (n <0 ){
-			if (-1 != this->BlockList[8]->Child[6]->FindOne(this->ScreenImg,true)){
-				printf("find 8 6\r\n");
-				this->BlockList[8]->Child[6]->ClickCoordinate(0,1);
-				//Self = true;
+		if (-1 != this->BlockList[8]->Child[6]->FindOne(this->ScreenImg,true)){
+			printf("find 8 6\r\n");
+			this->BlockList[8]->Child[6]->ClickCoordinate(0,1);
+			//Self = true;
+			lastn = n;
+			//BaseNum = -1;
+			this->InitUserTempInfoArr();
+		}else if (-1 != this->BlockList[8]->Child[7]->FindOne(this->ScreenImg)){
+			printf("find 8 7\r\n");
+			this->BlockList[8]->Child[7]->ClickCoordinate(0,1);
+			// Self = true;
 				lastn = n;
-				//BaseNum = -1;
 				this->InitUserTempInfoArr();
-			}else if (-1 != this->BlockList[8]->Child[7]->FindOne(this->ScreenImg)){
-				printf("find 8 7\r\n");
-				this->BlockList[8]->Child[7]->ClickCoordinate(0,1);
-				// Self = true;
-				 lastn = n;
-				 this->InitUserTempInfoArr();
-				// BaseNum = -1;
-			}else if (-1 != this->BlockList[8]->Child[15]->FindOne(this->ScreenImg)){
-				printf("find 8 7\r\n");
-				this->BlockList[8]->Child[15]->ClickCoordinate(0,1);
-				// Self = true;
-				 lastn = n;
-				 this->InitUserTempInfoArr();
-				 //BaseNum = -1;
-			}
+			// BaseNum = -1;
+		}else if (-1 != this->BlockList[8]->Child[15]->FindOne(this->ScreenImg)){
+			printf("find 8 7\r\n");
+			this->BlockList[8]->Child[15]->ClickCoordinate(0,1);
+			// Self = true;
+				lastn = n;
+				this->InitUserTempInfoArr();
+				//BaseNum = -1;
+		}
 
 	}else if ( n == 4 ){
+		return;
+
 		if (lastn <0 ) return;
 		int I = lastn +5;
 		if (this->BlockList[I]->Child.size()==0) return;
-		/**
-		int lastp = -1;
-		if (lastn ==3){
-			lastp = BlockList[lastn]->backVal;
-		}else{
-			if (this->BlockList[lastn]->Coord.size()>0){
-				lastp = this->BlockList[lastn]->Coord[0].v ;
-			}
-		}
-		if (lastp == -1) return;
-		**/
+		
 		int last = this->userTempInfoArr[lastn].val;
 		this->BlockList[I]->Child[0]->FindArr(this->ScreenImg,true);
 		int now = this->BlockList[I]->Child[0]->GetDataNum();
 		//return;
 		if (now != last){
 			this->userTempInfoArr[lastn].val = now;
-			//int d = (last - now)/BaseNum;
-			//this->userTempInfoArr[lastn].isDiffNum  =true;
 			int iI,no,f,nt = -1;
 			for (int i=0;i<3;i++){
-				
-
 				iI = i+5;
 				if (this->userTempInfoArr[i].Class == -1){
 					//int ni = n+5;
 					BlockList[iI]->Child[0]->FindArr(this->ScreenImg,true);
 					userTempInfoArr[i].val = BlockList[iI]->Child[0]->GetDataNum();
-					//this->BlockList[ni]->Child[1]->IsArr =1;
+					//this->BlockList[iI]->Child[1]->IsArr =1;
 					int cl = BlockList[iI]->Child[1]->FindOne(this->ScreenImg,true);
 					if (cl != -1){
 						userTempInfoArr[i].Class = cl;
@@ -162,9 +149,10 @@ void Monitor::Start( int & lastn,int &lastN){
 					}
 					continue;
 				}
+				/**
 				if (i == lastn)continue;
 				if (this->userTempInfoArr[i].ishu) continue;
-
+				
 				
 				this->BlockList[iI]->Child[0]->FindArr(this->ScreenImg,true);
 				no = this->BlockList[iI]->Child[0]->GetDataNum();
@@ -172,37 +160,12 @@ void Monitor::Start( int & lastn,int &lastN){
 				if (no == this->userTempInfoArr[i].val) continue;
 
 				this->userTempInfoArr[i].val = no;
-				//this->BlockList[iI]->Child[2]->IsArr = 1;
-				//f = this->BlockList[iI]->Child[2]->FindOne(this->ScreenImg,true);
-				//if (f == 30 ){
-					//nt = 3;
-				//	break;
-				//}else{
-					this->userTempInfoArr[i].ishu = true;
-					SendData(Client,NULL,i,&no,1,1);
-				//}
+			 
+				this->userTempInfoArr[i].ishu = true;
+				SendData(Client,NULL,i,&no,1,1);
+				**/
 			}
-			/**
-			if (nt>0){
-				//this->userTempInfoArr[i]
-				if (lastn != 3){
-					if (this->BlockList[lastn]->Coord.size()>0){
-						int val = this->BlockList[lastn]->Coord[0].v ;
-						//BlockList[lastn]->SendToServer(SendData,Client,0);
-						SendData(Client,NULL,iI-5,&val,1,nt);
-					}
-				}else{
-					int val = this->BlockList[lastn]->backVal;
-					if (val >=0 && val < 27){
-						SendData(Client,NULL,iI-5,&val,1,nt);
-					}
-				}
-
-				//BlockList[iI]->SendToServer(SendData,Client,1);
-				//int val = this->BlockList[lastn]->Coord[0].v ;
-				//SendData(Client,&BlockList[iI]->isUp,iI - 5,&val,1,nt);
-			}
-			**/
+		 
 		}
 		 
 	}else{
@@ -219,12 +182,10 @@ void Monitor::Start( int & lastn,int &lastN){
 	
 			if (this->userTempInfoArr[n].Class == -1){
 				int ni = n+5;
-				if (this->BlockList[ni]->Child.size()>0){				
+				if (this->BlockList[ni]->Child.size()>0){		
 					
 					BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
 					userTempInfoArr[n].val = BlockList[ni]->Child[0]->GetDataNum();
-					//this->BlockList[ni]->Child[1]->IsArr =1;
-
 					int cl = BlockList[ni]->Child[1]->FindOne(this->ScreenImg,true);
 					if (cl != -1){
 						userTempInfoArr[n].Class = cl;
@@ -428,7 +389,7 @@ bool Monitor::FindSelf(int & lastn){
 		}
 		Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[8]);
 		this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,7);
-		this->BlockList[3]->WaitEvent();
+		this->BlockList[8]->Child[8]->WaitEvent();
 		return true;		
 	}
 	return false;
@@ -442,6 +403,279 @@ bool Monitor::checkGang(vector <Coordinate>  C){
 		}
 	}
 	return false;
+}
+void Monitor::StartRun( int & lastn,int &lastN ){
+	int n = this->BlockList[4]->FindChildOne(this->ScreenImg,true);
+	if (n == -1){
+		if (-1 != this->BlockList[8]->Child[6]->FindOne(this->ScreenImg,true)){
+			printf("find 8 6\r\n");
+			this->BlockList[8]->Child[6]->ClickCoordinate(0,1);
+			//Self = true;
+			lastn = n;
+			//be = -1;
+			//BaseNum = -1;
+			this->InitUserTempInfoArr();
+		}else if (-1 != this->BlockList[8]->Child[7]->FindOne(this->ScreenImg,true)){
+			printf("find 8 7\r\n");
+			this->BlockList[8]->Child[7]->ClickCoordinate(0,1);
+			// Self = true;
+				lastn = n;
+				//be = -1;
+				this->InitUserTempInfoArr();
+			// BaseNum = -1;
+		}else if (-1 != this->BlockList[8]->Child[15]->FindOne(this->ScreenImg,true)){
+			printf("find 8 7\r\n");
+			this->BlockList[8]->Child[15]->ClickCoordinate(0,1);
+			// Self = true;
+				lastn = n;
+			//	be = -1;
+				this->InitUserTempInfoArr();
+				//BaseNum = -1;
+		}
+	}else if (n == 4){
+		return;
+	}else if (n == 3){
+		BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
+		int N = BlockList[9]->Child[1]->GetDataNum();
+		if (N != lastN){
+			this->BlockList[9]->Child[1]->ID = 91;
+			this->BlockList[9]->Child[1]->SendToServer(SendData,Client,N);
+			lastN = N;
+		}
+		if (lastN == 55 ){
+
+			if (!this->FindBegin1()){
+				if (!this->FindBegin2()){
+					
+					if (!FindOut())
+						this->FindSee();
+				//}else
+				//	lastn = n;
+				}else{
+					this->InitUserTempInfoArr();
+				}
+			}
+
+		}else{
+			if (!this->FindOut())
+				this->FindSee();
+			
+		}
+		
+		lastn = n;
+		//lastN = N ;
+		//lastn = n;
+	}else{
+		
+		int N = -1;
+		if (n == lastn ){
+			BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
+			N = BlockList[9]->Child[1]->GetDataNum();
+			if (N == lastN) return;
+		}	
+		
+		if (this->userTempInfoArr[n].Class == -1){
+			int ni = n+5;
+			if (this->BlockList[ni]->Child.size()>0){					
+				BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+				userTempInfoArr[n].val = BlockList[ni]->Child[0]->GetDataNum();
+				int cl = BlockList[ni]->Child[1]->FindOne(this->ScreenImg,true);
+				if (cl != -1){
+					userTempInfoArr[n].Class = cl;
+					SendData(Client,NULL,n,&cl,1,100);
+				}
+			}
+		} 		
+		//printf("start %d\r\n",n);
+		if (this->BlockList[n]->FindOne(this->ScreenImg,true) == -1)return;
+		
+
+
+		if (N == -1){
+			BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
+			N = BlockList[9]->Child[1]->GetDataNum();
+		}				 
+		
+		if ( lastN == N ){
+			this->userTempInfoArr[n].peng++;
+			if (lastn != 3){
+				if (this->BlockList[lastn]->Coord.size()>0){
+					int val = this->BlockList[lastn]->Coord[0].v ;
+					SendData(Client,NULL,n,&val,1,2);
+				}
+			}else{
+				int val = this->BlockList[lastn]->backVal;
+				if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,2);
+			}
+		}else{
+			/**
+			if(this->BlockList[n]->Child.size() == 0){
+				int ni = n+5;
+				BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+				int val = BlockList[ni]->Child[0]->GetDataNum();
+				if (val != userTempInfoArr[n].val){
+					//this->userTempInfoArr[lastn].ishu=true;
+					this->userTempInfoArr[n].peng++;
+					if (lastn != 3){
+						if (this->BlockList[lastn]->Coord.size()>0){
+							int val = this->BlockList[lastn]->Coord[0].v ;
+							SendData(Client,NULL,n,&val,1,3);
+						}
+					}else{
+						int val = this->BlockList[lastn]->backVal;
+						if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,3);
+					}
+
+					//SendData(Client,NULL,lastn,&val,1,1);
+				}
+			}
+			**/
+		}
+		//printf("send %d %d\r\n",this->BlockList[lastn]->Coord[0].v,n);
+		BlockList[n]->SendToServer(SendData,Client,0);				
+		lastN = N ;
+		lastn = n;
+		//be = 3;
+			
+	}
+}
+bool Monitor::FindBegin1(){
+	
+	if (-1 == this->BlockList[8]->Child[1]->FindOne(this->ScreenImg,true)) return false;
+	if (0== this->BlockList[8]->Child[12]->FindSep(this->ScreenImg,true)){
+		printf("find not 12\r\n");
+		return true;
+	}
+	this->BlockList[3]->CallBackVal = -1;
+	this->BlockList[3]->Coord.clear();
+	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
+	if (-1 != this->BlockList[8]->Child[13]->FindOne(this->ScreenImg)){
+		this->BlockList[3]->Coord.push_back(this->BlockList[8]->Child[13]->Coord[0]);
+	}
+	//this->BlockList[8]->ID = 5;
+	Client->InitCallBack(CallBackEventArr,BlockList[3]);
+	this->BlockList[3]->SendToServerNum(0,SendData,Client,5);
+	if (BlockList[3]->WaitEvent()!=0 ){
+		//Sleep(100);
+		BlockList[8]->Child[1]->ClickCoordinate(0,1);
+		Sleep(100);
+	}else if (BlockList[8]->Child[14]->FindOne(this->ScreenImg,true) != -1){
+		BlockList[8]->Child[14]->ClickCoordinate(0,2);
+	}else{
+		printf("find not 0 or 1\r\n");
+	}
+
+	return true;
+}
+bool Monitor::FindBegin2(){
+	if (-1 == this->BlockList[8]->Child[2]->FindOne(this->ScreenImg,true)){
+		//FindBegin1(be);
+		//if (be == 1) return FindBegin1(be);
+		return false;
+	}
+	//be = 2;
+	if (-1 == this->BlockList[8]->Child[3]->FindOne(this->ScreenImg,true)){
+		printf("find not 3\r\n");
+		return true;
+	}
+	this->BlockList[8]->Child[3]->Coord[0].v =1;
+	this->BlockList[8]->Child[2]->Coord.push_back(this->BlockList[8]->Child[3]->Coord[0]);
+	if (-1 == this->BlockList[8]->Child[4]->FindOne(this->ScreenImg,true)){
+		printf("find not 4\r\n");
+		return true;
+	}
+	this->BlockList[8]->Child[4]->Coord[0].v =2;
+	this->BlockList[8]->Child[2]->Coord.push_back(this->BlockList[8]->Child[4]->Coord[0]);
+	if (0== this->BlockList[8]->Child[12]->FindSep(this->ScreenImg,true)){
+		printf("find not 12\r\n");
+		return true;
+	}
+	this->BlockList[3]->Coord.clear();
+	this->BlockList[3]->CallBackVal = -1;
+	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
+
+	if (-1 != this->BlockList[8]->Child[13]->FindOne(this->ScreenImg)){
+		this->BlockList[3]->Coord.push_back(this->BlockList[8]->Child[13]->Coord[0]);			 
+	}
+	if (0 == this->BlockList[8]->Child[0]->FindArr(this->ScreenImg,true)) {
+		printf("find not 8 0\r\n");
+	}
+	Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[2]);
+	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,6);
+
+	this->BlockList[8]->Child[2]->WaitEvent();
+	return true;
+}
+bool Monitor::FindOut(){ 
+	if (-1 == this->BlockList[8]->Child[13]->FindOne(this->ScreenImg,true)){
+		//this->FiindSee();
+		return false;
+	}
+	if (0== this->BlockList[8]->Child[12]->FindSep(this->ScreenImg,true))return true;
+	this->BlockList[3]->CallBackVal = -1;
+	this->BlockList[3]->Coord.clear();
+	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
+		
+	this->BlockList[3]->Coord.push_back(this->BlockList[8]->Child[13]->Coord[0]);
+		
+ 
+	if (0 == this->BlockList[8]->Child[0]->FindArr(this->ScreenImg,true)) {
+			printf("find not 8 0\r\n");
+	}
+	Client->InitCallBack(CallBackEvent,BlockList[3]);
+	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,8);
+	int wait = this->BlockList[3]->WaitEvent();
+	//be = 3;
+	if ( wait==0){
+		if (this->BlockList[3]->backVal>30){
+			int val = this->BlockList[3]->backVal - 30;
+			if (-1 != this->BlockList[8]->Child[8]->FindOne(this->ScreenImg,true)){
+				if (this->BlockList[8]->Child[8]->ClickCoordinate(val,1)) return true;
+			}
+			if (-1 != this->BlockList[8]->Child[9]->FindOne(this->ScreenImg,true)){
+				if (this->BlockList[8]->Child[9]->ClickCoordinate(val,1)) return true;
+			}
+
+			if ( -1 != this->BlockList[8]->Child[16]->FindOne(this->ScreenImg,true)){
+				if (this->BlockList[8]->Child[16]->ClickCoordinate(val,1)) return true;
+			}
+
+			Client->InitCallBack(CallBackEvent,BlockList[3]);
+			this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,9);
+			this->BlockList[3]->WaitEvent();
+		} 
+	}
+	return true;
+}
+bool Monitor::FindSee(){
+
+	if (this->BlockList[8]->Child[8]->FindOne(this->ScreenImg,true) == -1){
+		return false;
+	}
+	if (this->BlockList[8]->Child[9]->FindOne(this->ScreenImg,true) == -1){
+		printf("find not 8 9\r\n");
+		return false;
+	}
+	this->BlockList[8]->Child[8]->Coord.push_back(this->BlockList[8]->Child[9]->Coord[0]);
+	if (this->BlockList[8]->Child[10]->FindOne(this->ScreenImg,true) != -1){
+		this->BlockList[8]->Child[8]->Coord.push_back(this->BlockList[8]->Child[10]->Coord[0]);
+		if (this->BlockList[8]->Child[11]->FindOne(this->ScreenImg,true) != -1){
+			this->BlockList[8]->Child[8]->Coord.push_back(this->BlockList[8]->Child[11]->Coord[0]);
+		}
+	}
+	if (0== this->BlockList[8]->Child[12]->FindSep(this->ScreenImg,true)){
+		printf("find not 12\r\n");
+		return false;
+	}
+	if (0 == this->BlockList[8]->Child[0]->FindArr(this->ScreenImg,true)) {
+			printf("find not 8 0\r\n");
+	}
+	this->BlockList[3]->Coord.clear();
+	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
+	Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[8]);
+	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,7);
+	this->BlockList[8]->Child[8]->WaitEvent();
+	return true;	
 }
 bool Monitor::FindSelfBegin(  ){
 
@@ -525,7 +759,6 @@ bool Monitor::FindSelfBegin(  ){
 	}
 	return false;
 }
-
 void Monitor::InitUserTempInfoArr(){
 	for (int i = 0;i<4;i++){
 		this->userTempInfoArr[i].ishu = false;
@@ -534,5 +767,11 @@ void Monitor::InitUserTempInfoArr(){
 		this->userTempInfoArr[i].val = 0;
 		this->userTempInfoArr[i].Class = -1;
 		this->userTempInfoArr[i].isDiffNum = false;
+		if (i == 3){
+			this->BlockList[i]->backVal = -1;
+		}else{
+		this->BlockList[i]->Coord.clear();
+		}
+
 	} 
 }

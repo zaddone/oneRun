@@ -12,6 +12,7 @@ public:
 	bool ScreenSave(const char * file);
 	void Runtest();
 	void Test(int tag);
+	void Test1(int tag);
 private:
 	vector <Block*> BlockList ;
 	void LoadRootData(const char * RootData );

@@ -36,11 +36,52 @@ void Coll::Run(){
 }
 
 void Coll::Test(int tag){
-	char * file = "E:\\code\\oneRun\\t1\\Screen_11.bmp";
+	char * file = "E:\\code\\oneRun\\temple_bak\\temple1\\8\\261.bmp";
 	this->ScreenImg = cvLoadImage(file,CV_LOAD_IMAGE_UNCHANGED);
 	for (vector<Block*>::iterator it = BlockList.begin(); it != BlockList.end(); it ++) {
 		(*it)->GetNumberList_test(this->ScreenImg,tag);
 	}
+}
+void Coll::Test1(int tag){
+	char * file = "E:\\code\\oneRun\\temple_bak\\temple1\\8\\261.bmp";
+	this->ScreenImg = cvLoadImage(file,CV_LOAD_IMAGE_UNCHANGED);
+	IplImage * imgbak = cvCreateImage(cvGetSize(ScreenImg ),ScreenImg->depth,ScreenImg->nChannels); 
+	//cvCopyImage(img, imgbak);  
+	cvThreshold( ScreenImg,imgbak, tag, 255, CV_THRESH_BINARY  );	
+	cvNamedWindow("contour1");
+	cvShowImage("contour1", imgbak);  
+	cvWaitKey(0);
+	cvDestroyWindow("contour1");
+
+	CvSeq* contours = NULL;
+	CvMemStorage* storage = cvCreateMemStorage(0);   		
+	int count = cvFindContours(imgbak, storage, &contours,sizeof(CvContour),CV_RETR_EXTERNAL); 
+	//int tempCount=0;
+	vector <CvRect> templeRect;
+	for (CvSeq* c = contours; c != NULL; c = c->h_next) {  
+		CvRect r=cvBoundingRect(c,0);
+
+
+		IplImage * img=cvCreateImage(cvSize(r.width,r.height),ScreenImg->depth,ScreenImg->nChannels);
+		cvSetImageROI(ScreenImg, r);
+		cvCopy(ScreenImg,img);
+		cvResetImageROI(ScreenImg);
+		cvNamedWindow("contour1");
+		cvShowImage("contour1", img);  
+		cvWaitKey(0);
+		cvDestroyWindow("contour1");
+		cvReleaseImage(&img);
+
+
+		templeRect.push_back(r);
+	}
+	sort(templeRect.begin(),templeRect.end(),compRectX);
+	//return templeRect;
+	//SaveTempleNum(templeRect,img);
+
+	//cvConvert(Mat, MatBak);
+	cvReleaseImage(&imgbak);  	
+	//cvReleaseImage(&img);  
 }
 void Coll::RunScreen(){
 	char file[100];

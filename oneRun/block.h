@@ -14,6 +14,7 @@
 class Block
 {
 public:
+	Block();
 	Block(CvRect r,int id,vector <TempleImg*> T,int coll);
 	Block(const char *data,CvPoint po,int coll);
 	~Block();
@@ -21,6 +22,8 @@ public:
 	int FindChildOne(IplImage * src,const bool isT=false);
 	int FindArr(IplImage * src,const bool isT = false );
 	int FindSep(IplImage * src,const bool isT = false );
+	//int FindArrButton(IplImage * src,const bool isT = false );
+
 	int GetDataNum();
 	int WaitEvent();
 	//bool FindSelfBegin(IplImage * src);
@@ -32,7 +35,9 @@ public:
 	vector <Block *> Child;
 	vector <Coordinate>  Coord;
 	friend void CallBackEvent(LPVOID handle,char *data);
+	friend void CallBackEventArr(LPVOID handle,char *data);
 	bool ClickCoordinate(int _v,int num);
+	bool ClickCoordinateT(int _v,int num);
 	bool PerceptionTempleToSame(IplImage * src,const int tag);
 	bool GetNumberList(IplImage * src,const int tag) ;
 	void GetNumberList_test(IplImage * src,const int tag) ;

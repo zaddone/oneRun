@@ -30,7 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			//Coll->RunMonitor();
 		}else if (strstr(str , "go")>0){
 			coll->Runtest();
-		}else if (strstr(str , "test")>0){
+		}else if (strstr(str , "clear")>0){
 			char file[100];
 			while(true){
 				std::cout << "enter file tag: ";
@@ -39,6 +39,13 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 
 			
+		}else if (strstr(str , "test")>0){
+			int val;
+			while(true){
+				std::cout << "enter file tag: ";
+				std::cin >> val;
+				coll->Test1(val);
+			}			
 		}
 
 		

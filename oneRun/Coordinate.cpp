@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Coordinate.h"
 
-Coordinate::Coordinate(int _x,int _y,int _v){
+Coordinate::Coordinate(int _x,int _y,int _v ){
 	x= _x;
 	y = _y;
 	v = _v;
@@ -22,17 +22,17 @@ bool Coordinate::MouseClick(const int _v,const int n){
 	MouseMove(x,y);
 	
 	for (int i=0;i<n;i++){
-		Sleep(150);
+		Sleep(100);
 		//LeftClick();
 		//Sleep(100);
 		 
 		MouseLeftDown();
-		Sleep(150);
+		Sleep(100);
 		MouseLeftUp();
 	
 	}
 	MouseMove(130,130);
-	Sleep(150);
+	Sleep(100);
 	return true;
 }
 /**

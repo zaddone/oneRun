@@ -1,5 +1,20 @@
 #include "stdafx.h"
 #include "block.h"
+
+Block::Block(){
+	//this->rect = r;
+	this->IsArr = 0;
+	Addtemple = 0;
+	//TempleList.clear();
+	//TempleList.assign(T.begin(), T.end());
+	//this->TempleList= T;
+	this->Sep = -1;
+
+	Mat = NULL;
+	MatBak = NULL;
+	backVal = -1;
+	this->Coll = 0;
+}
 Block::Block(CvRect r,int type,vector <TempleImg*> T,int coll){
 	this->rect = r;
 	this->IsArr = type;
@@ -12,6 +27,7 @@ Block::Block(CvRect r,int type,vector <TempleImg*> T,int coll){
 	Mat = cvCreateMat(rect.height, rect.width, CV_32FC1);
 	MatBak = cvCreateMat(rect.height, rect.width, CV_32FC1);
 	backVal = -1;
+	this->Coll = coll;
 }
 Block::Block(const char *data,CvPoint po,int coll){
 	//isChild = false;
@@ -50,6 +66,7 @@ Block::Block(const char *data,CvPoint po,int coll){
 	}
 	Mat = cvCreateMat(rect.height, rect.width, CV_32FC1);
 	MatBak = cvCreateMat(rect.height, rect.width, CV_32FC1);
+	this->Coll = coll;
 }
 Block::~Block(){
 	for (vector<Block*>::iterator it = Child.begin(); it != Child.end(); it ++) {
@@ -163,7 +180,6 @@ bool Block::PerceptionTempleToSame(IplImage * src,const int tag){
 	cvReleaseImage(&dst);
 	return isOut;
 }
-
 bool Block::GetNumberList(IplImage * src,const int tag) {
 	vector <CvRect> templeRect;
 	IplImage * img=cvCreateImage(cvSize(rect.width,rect.height),src->depth,src->nChannels);
@@ -314,7 +330,9 @@ int Block::FindOne(IplImage * src,const bool isT){
 		if (!isT){
 			for (vector<TempleImg*>::iterator it = TempleList.begin(); it != TempleList.end(); it ++) {
 				if (inSameOne(dst, (*it)->img,&loc)){
-					Coordinate coo(rect.x+loc.x +( (*it)->img->width/2)  ,rect.y+loc.y +((*it)->img->height/2) ,(*it)->Tag);	
+					Coordinate coo(rect.x+loc.x +( (*it)->img->width/2)  ,rect.y+loc.y +((*it)->img->height/2) ,(*it)->Tag );	
+					coo.rect = cvRect(rect.x+loc.x,rect.y+loc.y,(*it)->img->width,(*it)->img->height);
+					coo.te = (*it);
 					this->Coord.push_back(coo);
 					n = (*it)->Tag;
 					break;
@@ -324,7 +342,9 @@ int Block::FindOne(IplImage * src,const bool isT){
 			//bool isH;
 			double max = 0,val;
 			CvPoint  l;
-			Coordinate coo(0,0,0);
+			Coordinate coo(0,0,0 );
+			//coo.rect = rect;
+			
 			for (vector<TempleImg*>::iterator it = TempleList.begin(); it != TempleList.end(); it ++) {
 				val = inSameOneT(dst, (*it)->img,&l);
 				if (val < 0.8) {
@@ -339,6 +359,8 @@ int Block::FindOne(IplImage * src,const bool isT){
 					coo.x = rect.x+loc.x +( (*it)->img->width/2);
 					coo.y = rect.y+loc.y +((*it)->img->height/2);
 					coo.v = n;
+					coo.te = (*it);
+					coo.rect = cvRect(rect.x+loc.x,rect.y+loc.y,(*it)->img->width,(*it)->img->height);
 					//loc->y = l.y;
 				}
 			}
@@ -376,10 +398,6 @@ int Block::FindSep(IplImage * src,const bool isT){
 	int n = rect.width/this->Sep;
 	if (n <= 0 )return 0;
 	CallBackVal = -1;
-
-
-
-
 	Coord.clear();
 	int j = 0;
 	for (int i = 0;i<n;i++){
@@ -705,7 +723,8 @@ void CallBackEvent(LPVOID handle,char *data){
 	int i=0;
 	int n;
 	int val =0;
-	
+	r->backVal = -1;
+	//r->CallBackVal = -1
 	while(p){
 		n = atoi(p);
 		if (i==0){
@@ -719,10 +738,11 @@ void CallBackEvent(LPVOID handle,char *data){
 		  
 		//printf("%s %d\r\n",p,val);
 		if (n > -1){
+			r->backVal = n;
 			if (r->ClickCoordinate(n,1)){
 				val++;
-				printf("OK %d\r\n",n);
-				r->backVal = n;
+				//printf("OK %d\r\n",n);
+				
 				//Sleep(150);
 				
 		//	}else{
@@ -736,11 +756,65 @@ void CallBackEvent(LPVOID handle,char *data){
 	}
 	r->CallBackVal = val;
 }
+void CallBackEventArr(LPVOID handle,char *data){
 
+	Block * r = (Block *) handle;
+	char *p ;
+	const char *d = " ";
+	p = strtok(data,d);
+	int i=0;
+	int n;
+	int val =0;
+	r->backVal = -1;
+	while(p){
+		n = atoi(p);
+		if (i==0){
+			i++;
+			p=strtok(NULL,d);
+			continue;
+		}
+		if (n > -1){
+			r->backVal = n;
+			if (r->ClickCoordinateT(n,1)){
+				val++;
+			}
+		}
+		p=strtok(NULL,d);
+	}
+	r->CallBackVal = val;
+}
+bool Block::ClickCoordinateT(int _v,int num){
+
+	IplImage *Img = hBitmap2Ipl(Screen());
+	bool isOut = false;
+	Block *bl =new Block();
+	for (vector<Coordinate>::iterator it = Coord.begin(); it != Coord.end(); it ++) {
+		if ((*it).v != _v)continue;		
+		bl ->rect = (*it).rect;
+		bl->TempleList.push_back((*it).te);
+		int ne = bl->FindOne(Img,true);
+		bl->TempleList.clear();		
+		if (ne == -1){
+			Coord.erase(it);
+			isOut = true;
+			break;			 
+		}
+		if ((*it).MouseClick(_v,num) ){
+			Coord.erase(it);
+			isOut = true;
+			break;
+		}		
+	}
+	delete bl;
+	cvReleaseImage(&Img);
+	return isOut;
+}
 bool Block::ClickCoordinate(int _v,int num){
 	if (_v == -1) return Coord[0].MouseClick(Coord[0].v,num);
 	for (vector<Coordinate>::iterator it = Coord.begin(); it != Coord.end(); it ++) {
 		//if (*it == 0 )continue;
+		 
+
 		if ((*it).MouseClick(_v,num) ){
 			Coord.erase(it);
 			return true;		
