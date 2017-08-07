@@ -14,7 +14,7 @@
 class Block
 {
 public:
-	Block();
+	//Block();
 	Block(CvRect r,int id,vector <TempleImg*> T,int coll);
 	Block(const char *data,CvPoint po,int coll);
 	~Block();
@@ -34,6 +34,7 @@ public:
 	int ID;
 	vector <Block *> Child;
 	vector <Coordinate>  Coord;
+	void ClearCoord();
 	friend void CallBackEvent(LPVOID handle,char *data);
 	friend void CallBackEventArr(LPVOID handle,char *data);
 	bool ClickCoordinate(int _v,int num);

@@ -1,20 +1,7 @@
 #include "stdafx.h"
 #include "block.h"
 
-Block::Block(){
-	//this->rect = r;
-	this->IsArr = 0;
-	Addtemple = 0;
-	//TempleList.clear();
-	//TempleList.assign(T.begin(), T.end());
-	//this->TempleList= T;
-	this->Sep = -1;
 
-	Mat = NULL;
-	MatBak = NULL;
-	backVal = -1;
-	this->Coll = 0;
-}
 Block::Block(CvRect r,int type,vector <TempleImg*> T,int coll){
 	this->rect = r;
 	this->IsArr = type;
@@ -23,9 +10,8 @@ Block::Block(CvRect r,int type,vector <TempleImg*> T,int coll){
 	TempleList.assign(T.begin(), T.end());
 	//this->TempleList= T;
 	this->Sep = -1;
-
-	Mat = cvCreateMat(rect.height, rect.width, CV_32FC1);
-	MatBak = cvCreateMat(rect.height, rect.width, CV_32FC1);
+	Mat = NULL;// cvCreateMat(rect.height, rect.width, CV_32FC1);
+	MatBak = NULL;// cvCreateMat(rect.height, rect.width, CV_32FC1);
 	backVal = -1;
 	this->Coll = coll;
 }
@@ -73,18 +59,15 @@ Block::~Block(){
 		delete (*it);
 		*it = NULL;
 	}
-	//vector <Block*>().swap(Child);
 	Child.clear();
-	/**
-	for (vector<TempleImg*>::iterator it = TempleList.begin(); it != TempleList.end(); it ++) {
-		delete (*it);
-		*it = NULL;
-	}
-	//vector <TempleImg*>().swap(TempleList);
+
+	vector <Coordinate>().swap(Coord);
 	TempleList.clear();
-	**/
-	cvReleaseMat(&Mat);
-	cvReleaseMat(&MatBak);
+	
+	if (Mat != NULL)
+		cvReleaseMat(&Mat);
+	if (MatBak != NULL)
+		cvReleaseMat(&MatBak);
 
 }
 int Block::FindArr(IplImage * src,const bool isT ){
@@ -95,7 +78,7 @@ int Block::FindArr(IplImage * src,const bool isT ){
 	IplImage * dstbak=cvCreateImage(cvSize(rect.width,rect.height),src->depth,src->nChannels);
 	cvCopy(src,dst);
 	cvResetImageROI(src);
-	this->Coord.clear();
+	this->ClearCoord();
 
 	if (this->Sep >0){
 		cvThreshold( dst,dstbak, this->Sep , 255, CV_THRESH_BINARY  );
@@ -121,37 +104,13 @@ int Block::FindArr(IplImage * src,const bool isT ){
 		if (bl->FindOne(dst,isT) != -1) {
 			Coord.push_back(bl->Coord[0]);
 			j++;
-		}else{
-			 
+		}else{			 
 			this->Addtemple++;
 		}
 		delete bl;
 		
 	}
-	//cvClearSeq(contours);
-	/**
-
-	cvResetImageROI(src); 
-	this->Coord.clear();
-	double max_val,min_val;
-	CvPoint maxLoc,minLoc;
-	int j = 0;
- 
-	for (vector<TempleImg*>::iterator it = TempleList.begin(); it != TempleList.end(); it ++) {
-		IplImage* imgResult = cvCreateImage(cvSize(dst->width - (*it)->img->width + 1,dst->height - (*it)->img->height + 1),IPL_DEPTH_32F,1);
-		cvMatchTemplate(dst,(*it)->img,imgResult,CV_TM_CCOEFF_NORMED); 
-		cvMinMaxLoc(imgResult, &min_val, &max_val, &minLoc, &maxLoc, NULL); 
-		while (max_val >0.9){
-			Coordinate coo(maxLoc.x+rect.x+( (*it)->img->width/2)  ,maxLoc.y +rect.y+((*it)->img->height/2) ,(*it)->Tag);	
-			this->Coord.push_back(coo);
-			j++;
-			getNextMaxLoc(imgResult , (*it)->img->width,(*it)->img->height,min_val ,&max_val, &maxLoc);
-			//N++;
-		
-		}
-		cvReleaseImage(&imgResult);
-	} 
-	**/
+	cvReleaseMemStorage(&storage);
 	cvReleaseImage(&dst);
 	cvReleaseImage(&dstbak);
 	return j;
@@ -208,6 +167,7 @@ bool Block::GetNumberList(IplImage * src,const int tag) {
 		SaveTempleNum(templeRect,img);
 		cvConvert(Mat, MatBak);
 		cvReleaseImage(&imgbak);  
+		cvReleaseMemStorage(&storage);
 	}
 	cvReleaseImage(&img);  
 	return isOut;
@@ -238,7 +198,7 @@ void Block::GetNumberList_test(IplImage * src,const int tag) {
 	//return templeRect;
 	SaveTempleNum(templeRect,img);
 	cvConvert(Mat, MatBak);
-
+	cvReleaseMemStorage(&storage);
 	cvReleaseImage(&imgbak);  
 	
 	cvReleaseImage(&img);  
@@ -322,7 +282,8 @@ int Block::FindOne(IplImage * src,const bool isT){
 	//cvReleaseImage(&dst);
 	*/
 
-	this->Coord.clear();
+	//this->Coord.clear();
+	this->ClearCoord();
 	int n = -1;
 	CallBackVal = -1;
 	
@@ -756,6 +717,11 @@ void CallBackEvent(LPVOID handle,char *data){
 	}
 	r->CallBackVal = val;
 }
+
+void Block::ClearCoord(){
+	//Coord
+	vector <Coordinate>().swap(Coord);
+}
 void CallBackEventArr(LPVOID handle,char *data){
 
 	Block * r = (Block *) handle;
@@ -787,26 +753,35 @@ bool Block::ClickCoordinateT(int _v,int num){
 
 	IplImage *Img = hBitmap2Ipl(Screen());
 	bool isOut = false;
-	Block *bl =new Block();
+	
+	//Block *bl =new Block();
 	for (vector<Coordinate>::iterator it = Coord.begin(); it != Coord.end(); it ++) {
-		if ((*it).v != _v)continue;		
-		bl ->rect = (*it).rect;
-		bl->TempleList.push_back((*it).te);
+		if ((*it).v != _v)continue;
+
+		vector <TempleImg*> Tem;
+		Tem.push_back((*it).te);
+
+		Block *bl =new Block((*it).rect,0,Tem,0);
+		//bl->TempleList.push_back((*it).te);
 		int ne = bl->FindOne(Img,true);
-		bl->TempleList.clear();		
+		delete bl;
+		Tem.clear();
+		//vector <Coordinate>().swap(Coord);
 		if (ne == -1){
 			Coord.erase(it);
 			isOut = true;
 			break;			 
 		}
+		
 		if ((*it).MouseClick(_v,num) ){
 			Coord.erase(it);
 			isOut = true;
 			break;
 		}		
 	}
-	delete bl;
+
 	cvReleaseImage(&Img);
+	Img = NULL;
 	return isOut;
 }
 bool Block::ClickCoordinate(int _v,int num){

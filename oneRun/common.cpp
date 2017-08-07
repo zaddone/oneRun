@@ -109,6 +109,8 @@ bool hBitmap2Ipls(HBITMAP hBmp,IplImage* dst ){
 		cvCvtColor(img,dst,CV_RGBA2RGB);
 	**/
 	if (img->width != dst->width || img->height != dst->height){
+		cvReleaseImage(&img);  
+		DeleteObject(hBmp);
 		return false;
 	}
 	
@@ -132,29 +134,16 @@ IplImage* hBitmap2Ipl(HBITMAP hBmp )
 	//bitmap.GetBitmap(&bm); 
     BITMAP bmp;
     GetObject(hBmp,sizeof(BITMAP),&bmp);
-
     int    nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel/8;
-	//int    nChannels = bmp.bmBitsPixel == 1 ? 1 : 4;
     int    depth     = bmp.bmBitsPixel   == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
-	//printf("%d %d %d %d %d \r\n",bmp.bmBitsPixel,nChannels,depth,bmp.bmWidth, bmp.bmHeight);
     IplImage *img=cvCreateImage(cvSize(bmp.bmWidth, bmp.bmHeight), depth,nChannels);
-
-    img->imageData = (char*)malloc(bmp.bmHeight*bmp.bmWidth*nChannels*sizeof(char));
     BYTE *pBuffer = new BYTE[bmp.bmHeight*bmp.bmWidth*nChannels];
 	GetBitmapBits(hBmp,bmp.bmHeight*bmp.bmWidth*nChannels,pBuffer);
 	memcpy(img->imageData,pBuffer,bmp.bmHeight*bmp.bmWidth*nChannels);
     delete pBuffer; 
-	IplImage *dst = cvCreateImage(cvGetSize(img),img->depth,1);  
-	//printf("%d \n",nChannels);
-	/**
-	if (nChannels == 2)
-		cvCvtColor(img,dst,CV_BGR5652RGB);  
-	else if (nChannels == 3)
-		cvCvtColor(img,dst,CV_BGR2RGB);
-	else if (nChannels == 4)
-		cvCvtColor(img,dst,CV_RGBA2RGB);
 
-	**/
+	IplImage *dst = cvCreateImage(cvGetSize(img),img->depth,1);
+
 	if (nChannels == 2)
 		cvCvtColor(img,dst,CV_BGR5652GRAY);  
 	else if (nChannels == 3)

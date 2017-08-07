@@ -28,26 +28,18 @@ public:
 
 private:
 	void LoadRootData(const char * RootData );
-	void Start( int & n,int &lastN);
-	bool FindSelfBegin();
-	bool FindSelf(int & lastn);
 	IplImage *ScreenImg;
 	vector <Block*> BlockList ;
 	client * Client;
 	LPCTSTR BaseName;
-
-
 	void StartRun( int & n,int &lastN );
 	bool FindBegin1();
 	bool FindBegin2();
-	//void FindBegin3();
 	bool FindOut();
 	bool FindSee();
-
 	userInfo userTempInfoArr[4];
 
 	void InitUserTempInfoArr();
-	bool checkGang(vector <Coordinate>  C);
 
 	int BaseNum;
 	int Coll;
