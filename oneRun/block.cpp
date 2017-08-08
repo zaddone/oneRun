@@ -19,7 +19,9 @@ Block::Block(const char *data,CvPoint po,int coll){
 	//isChild = false;
 	//printf("%s\r\n",data);
 	Addtemple = 0;
+	this->Coll = coll;
 	char info[50] ;
+	
 	strcpy(info,data);
 	char *p ;
 	const char *d = " ";
@@ -52,7 +54,8 @@ Block::Block(const char *data,CvPoint po,int coll){
 	}
 	Mat = cvCreateMat(rect.height, rect.width, CV_32FC1);
 	MatBak = cvCreateMat(rect.height, rect.width, CV_32FC1);
-	this->Coll = coll;
+	
+	//printf("%d %d\r\n",ID,Coll);
 }
 Block::~Block(){
 	for (vector<Block*>::iterator it = Child.begin(); it != Child.end(); it ++) {

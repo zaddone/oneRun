@@ -28,7 +28,7 @@ Monitor::Monitor(const char *RootData ,CString Base){
 	 
 	this->BaseNum = GetPrivateProfileInt(_T("Info"),_T("BaseNum"),100,BaseName);
 	this->Coll = GetPrivateProfileInt(_T("Info"),_T("Coll"),0,BaseName);
-
+	printf("coll %d\r\n",Coll);
 	this->LoadRootData(RootData);
 	//isDiffNum=false;
 }
@@ -92,6 +92,47 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 
 		}
 	}else if (n == 4){
+		//if (lastn == 3 || lastn <0) return;
+		for (int i = 0;i<3;i++){
+			int ni = i+5;
+			if (this->userTempInfoArr[i].Class == -1){				
+				int cl = BlockList[ni]->Child[1]->FindOne(this->ScreenImg,true);
+				if (cl != -1){
+					BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+					userTempInfoArr[i].val = BlockList[ni]->Child[0]->GetDataNum();
+					userTempInfoArr[i].Class = cl;
+					SendData(Client,NULL,i,&cl,1,100);
+				}
+			}
+		}
+		
+		if (this->userTempInfoArr[lastn].Class == -1)return;
+		int ni = lastn +5;
+		BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+		int val = BlockList[ni]->Child[0]->GetDataNum();
+		if (val == userTempInfoArr[lastn].val)return;
+
+		userTempInfoArr[lastn].val = val;
+		for (int i = 0;i<3;i++){
+			if (i == lastn) continue;
+			if (userTempInfoArr[i].isDiffNum) continue;
+			ni = i+5;
+			BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+			int val = BlockList[ni]->Child[0]->GetDataNum();
+			if (userTempInfoArr[i].val != val){
+				userTempInfoArr[i].val = val;
+
+				BlockList[ni]->Child[2]->FindOne(this->ScreenImg,true);
+				BlockList[ni]->Child[3]->FindOne(this->ScreenImg,true);
+				BlockList[ni]->Child[4]->FindOne(this->ScreenImg,true);
+				BlockList[ni]->Child[5]->FindOne(this->ScreenImg,true);
+				BlockList[ni]->Child[6]->FindOne(this->ScreenImg,true);
+				//if (i != lastn)	userTempInfoArr[i].isDiffNum = true;
+			}
+		}
+			
+		
+
 		return;
 	}else if (n == 3){
 		BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
@@ -132,11 +173,11 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 			BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
 			N = BlockList[9]->Child[1]->GetDataNum();
 			if (N == lastN) return;
-		}	
+		}
 		
 		if (this->userTempInfoArr[n].Class == -1){
 			int ni = n+5;
-			if (this->BlockList[ni]->Child.size()>0){					
+			if (this->BlockList[ni]->Child.size()>0){
 				BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
 				userTempInfoArr[n].val = BlockList[ni]->Child[0]->GetDataNum();
 				int cl = BlockList[ni]->Child[1]->FindOne(this->ScreenImg,true);
@@ -145,17 +186,62 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 					SendData(Client,NULL,n,&cl,1,100);
 				}
 			}
-		} 		
-		//printf("start %d\r\n",n);
-		if (this->BlockList[n]->FindOne(this->ScreenImg,true) == -1)return;
+		}
 		
+		if(this->userTempInfoArr[n].isDiffNum){
+			this->userTempInfoArr[n].peng++;
+			this->userTempInfoArr[n].isDiffNum = false;
+			if (lastn == n){
 
+			}else if (lastn != 3){
+				if (this->BlockList[lastn]->Coord.size()>0){
+					int val = this->BlockList[lastn]->Coord[0].v ;
+					SendData(Client,NULL,n,&val,1,3);
+				}
+			}else{
+				int val = this->BlockList[lastn]->backVal;
+				if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,3);
+			}
+		}
+
+		
+		//printf("start %d\r\n",n);
+		if (this->BlockList[n]->FindOne(this->ScreenImg,true) == -1){
+			int ni = n+5;
+			BlockList[ni]->Child[2]->FindOne(this->ScreenImg,true);
+			BlockList[ni]->Child[3]->FindOne(this->ScreenImg,true);
+			BlockList[ni]->Child[4]->FindOne(this->ScreenImg,true);
+			BlockList[ni]->Child[5]->FindOne(this->ScreenImg,true);
+			BlockList[ni]->Child[6]->FindOne(this->ScreenImg,true);
+
+			/**
+			int ni = n +5;
+			BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+			int val = BlockList[ni]->Child[0]->GetDataNum();
+			if (userTempInfoArr[n].val != val){
+				userTempInfoArr[n].val = val;
+				//userTempInfoArr[n].isDiffNum = true;
+				lastn = n;
+				//lastN = N ;
+				for (int i=0;i<3;i++){
+					if (userTempInfoArr[n].isDiffNum) continue;
+
+					BlockList[i+5]->Child[0]->FindArr(this->ScreenImg,true);
+					userTempInfoArr[i].val = BlockList[i+5]->Child[0]->GetDataNum();
+				}
+			}
+			**/
+			return;
+		}
 
 		if (N == -1){
 			BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
 			N = BlockList[9]->Child[1]->GetDataNum();
-		}				 
-		if (lastn >=0){
+		}			
+
+
+
+		if (lastn >=0 && lastn != n){
 			if ( lastN == N ){
 				this->userTempInfoArr[n].peng++;
 				if (lastn != 3){
@@ -166,30 +252,7 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 				}else{
 					int val = this->BlockList[lastn]->backVal;
 					if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,2);
-				}
-			}else{
-				/**
-				if(this->BlockList[n]->Child.size() == 0){
-					int ni = n+5;
-					BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
-					int val = BlockList[ni]->Child[0]->GetDataNum();
-					if (val != userTempInfoArr[n].val){
-						//this->userTempInfoArr[lastn].ishu=true;
-						this->userTempInfoArr[n].peng++;
-						if (lastn != 3){
-							if (this->BlockList[lastn]->Coord.size()>0){
-								int val = this->BlockList[lastn]->Coord[0].v ;
-								SendData(Client,NULL,n,&val,1,3);
-							}
-						}else{
-							int val = this->BlockList[lastn]->backVal;
-							if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,3);
-						}
-
-						//SendData(Client,NULL,lastn,&val,1,1);
-					}
-				}
-				**/
+				}			 
 			}
 		}
 		//printf("send %d %d\r\n",this->BlockList[lastn]->Coord[0].v,n);
@@ -264,7 +327,9 @@ bool Monitor::FindBegin2(){
 		printf("find not 8 0\r\n");
 	}
 	Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[2]);
-	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,6);
+	 
+	this->userTempInfoArr[3].val = this->BlockList[8]->Child[0]->GetDataNum();
+	this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,6);
 
 	this->BlockList[8]->Child[2]->WaitEvent();
 	return true;
@@ -285,8 +350,12 @@ bool Monitor::FindOut(){
 	if (0 == this->BlockList[8]->Child[0]->FindArr(this->ScreenImg,true)) {
 			printf("find not 8 0\r\n");
 	}
+
+	this->userTempInfoArr[3].val = this->BlockList[8]->Child[0]->GetDataNum();
+	//this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,6);
+
 	Client->InitCallBack(CallBackEvent,BlockList[3]);
-	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,8);
+	this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,8);
 	int wait = this->BlockList[3]->WaitEvent();
 	//be = 3;
 	if ( wait==0){
@@ -334,9 +403,10 @@ bool Monitor::FindSee(){
 			printf("find not 8 0\r\n");
 	}
 	//this->BlockList[3]->ClearCoord();
+	this->userTempInfoArr[3].val = this->BlockList[8]->Child[0]->GetDataNum();
 	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
 	Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[8]);
-	this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,7);
+	this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,7);
 	this->BlockList[8]->Child[8]->WaitEvent();
 	return true;	
 }
