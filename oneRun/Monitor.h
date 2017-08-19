@@ -12,7 +12,7 @@
 typedef struct _userInfo {
 	int peng; // 发生碰牌 序列
 	bool ishu; // 是否已经胡牌
-	int type; // 二进制 纪录 碰 杠 属性
+	int type[4]; // 二进制 纪录 碰 杠 属性
 	int val;  //得分
 	int Class; // 0 万,1 条,2 筒
 

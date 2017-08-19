@@ -21,7 +21,6 @@ Block::Block(const char *data,CvPoint po,int coll){
 	Addtemple = 0;
 	this->Coll = coll;
 	char info[50] ;
-	
 	strcpy(info,data);
 	char *p ;
 	const char *d = " ";
@@ -216,7 +215,7 @@ void  Block::SaveTempleNum(vector <CvRect> rs,IplImage * img){
 	}
 }
 bool Block:: AddTempleImg(IplImage * img){
-	size_t n  = TempleList.size();
+	int n  =(int) TempleList.size();
 	if (n>0){
 		for (vector<TempleImg * >::iterator it = TempleList.begin(); it != TempleList.end(); it ++) {
 
@@ -235,10 +234,16 @@ bool Block:: AddTempleImg(IplImage * img){
 int Block::GetDataNum(){
 	sort(Coord.begin(),Coord.end(),comp);
 	int val = 0;
+	bool isf = false;
 	for (vector<Coordinate >::iterator it = Coord.begin(); it != Coord.end(); it ++) {
+		if ((*it).v == 10){
+			isf = true;
+			continue;
+		}
 		val *= 10;
 		val +=(*it).v;
 	}
+	if (isf) val = -val;
 	return val;
 }
 int Block::FindChildOne(IplImage * src,const bool isT){
@@ -358,6 +363,21 @@ int Block::FindOne(IplImage * src,const bool isT){
 	cvReleaseImage(&dst);
 	return n;
 }
+
+void Block::collTemple(IplImage * src){
+	cvSetImageROI(src, rect);
+	IplImage * dst=cvCreateImage(cvSize(rect.width,rect.height),src->depth,src->nChannels);
+	cvCopy(src,dst);
+	cvResetImageROI(src); 
+	char file[100];		
+	sprintf(file,"temple\\%s",this->FilePath);
+	CreatDir(file);
+	sprintf(file,"%s\\%d.bmp",file,Addtemple);
+	Addtemple++;
+	cvSaveImage(file,dst);
+	cvReleaseImage(&dst);
+}
+
 int Block::FindSep(IplImage * src,const bool isT){
 	int n = rect.width/this->Sep;
 	if (n <= 0 )return 0;
@@ -448,10 +468,13 @@ void Block::LoadToTempleList(char * Filepath ){
 		if (handle != -1) {
 			do   {
 				sprintf(path,"tag\\%s\\%s",Filepath,fd.name);
-				IplImage * img = cvLoadImage(path,CV_LOAD_IMAGE_UNCHANGED);
+				//IplImage * img = cvLoadImage(path,CV_LOAD_IMAGE_UNCHANGED);
+				IplImage * img = cvLoadImage(path,CV_LOAD_IMAGE_ANYDEPTH);
 				if (img==NULL)continue;
+				//printf("%d %d\r\n",img->depth,img->nChannels);
 				//IplImage * img = cvCreateImage(cvGetSize(tmpimg ),tmpimg->depth,1); 
 				//cvSplit(tmpimg,img,0,0,0);
+				
 				
 				pch = strchr(fd.name,'_');
 				if (pch == NULL) nlen = 1;

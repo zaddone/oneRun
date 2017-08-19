@@ -22,6 +22,7 @@ public:
 	int FindChildOne(IplImage * src,const bool isT=false);
 	int FindArr(IplImage * src,const bool isT = false );
 	int FindSep(IplImage * src,const bool isT = false );
+	void collTemple(IplImage * src);
 	//int FindArrButton(IplImage * src,const bool isT = false );
 
 	int GetDataNum();

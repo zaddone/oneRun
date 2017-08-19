@@ -105,7 +105,8 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 				}
 			}
 		}
-		
+		return;	
+		/**
 		if (this->userTempInfoArr[lastn].Class == -1)return;
 		int ni = lastn +5;
 		BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
@@ -121,7 +122,6 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 			int val = BlockList[ni]->Child[0]->GetDataNum();
 			if (userTempInfoArr[i].val != val){
 				userTempInfoArr[i].val = val;
-
 				BlockList[ni]->Child[2]->FindOne(this->ScreenImg,true);
 				BlockList[ni]->Child[3]->FindOne(this->ScreenImg,true);
 				BlockList[ni]->Child[4]->FindOne(this->ScreenImg,true);
@@ -130,11 +130,21 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 				//if (i != lastn)	userTempInfoArr[i].isDiffNum = true;
 			}
 		}
-			
-		
-
 		return;
+		**/
 	}else if (n == 3){
+
+		
+		int vb;
+		for (int i = 5,j = 0;i<8;i++,j++){
+			if (this->userTempInfoArr[j].ishu) continue;
+			BlockList[i]->Child[2]->IsArr = 0;
+			vb = BlockList[i]->Child[2]->FindOne(this->ScreenImg,true);
+			if (vb != -1){
+				this->userTempInfoArr[j].ishu = true;	
+				BlockList[i]->Child[2]->collTemple(this->ScreenImg);
+			}
+		}
 		BlockList[9]->Child[1]->FindArr(this->ScreenImg,true);
 		int N = BlockList[9]->Child[1]->GetDataNum();
 		if (N != lastN){
@@ -180,6 +190,7 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 			if (this->BlockList[ni]->Child.size()>0){
 				BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
 				userTempInfoArr[n].val = BlockList[ni]->Child[0]->GetDataNum();
+				BlockList[ni]->Child[1]->IsArr = 0;
 				int cl = BlockList[ni]->Child[1]->FindOne(this->ScreenImg,true);
 				if (cl != -1){
 					userTempInfoArr[n].Class = cl;
@@ -187,50 +198,32 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 				}
 			}
 		}
-		
-		if(this->userTempInfoArr[n].isDiffNum){
-			this->userTempInfoArr[n].peng++;
-			this->userTempInfoArr[n].isDiffNum = false;
-			if (lastn == n){
-
-			}else if (lastn != 3){
-				if (this->BlockList[lastn]->Coord.size()>0){
-					int val = this->BlockList[lastn]->Coord[0].v ;
-					SendData(Client,NULL,n,&val,1,3);
-				}
-			}else{
-				int val = this->BlockList[lastn]->backVal;
-				if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,3);
-			}
-		}
-
-		
 		//printf("start %d\r\n",n);
 		if (this->BlockList[n]->FindOne(this->ScreenImg,true) == -1){
 			int ni = n+5;
-			BlockList[ni]->Child[2]->FindOne(this->ScreenImg,true);
-			BlockList[ni]->Child[3]->FindOne(this->ScreenImg,true);
-			BlockList[ni]->Child[4]->FindOne(this->ScreenImg,true);
-			BlockList[ni]->Child[5]->FindOne(this->ScreenImg,true);
-			BlockList[ni]->Child[6]->FindOne(this->ScreenImg,true);
-
-			/**
-			int ni = n +5;
 			BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
 			int val = BlockList[ni]->Child[0]->GetDataNum();
-			if (userTempInfoArr[n].val != val){
+			if (val  != userTempInfoArr[n].val){
+				if (val > userTempInfoArr[n].val){
+					int vl,_j;
+					for (int j = 0;j<4;j++){
+				//		this->userTempInfoArr[n].type[j]
+						_j = j+3;
+						vl = this->BlockList[ni]->Child[_j]->FindOne(this->ScreenImg,true);
+						if (vl ==n){
+							this->BlockList[ni]->Child[_j]->collTemple(this->ScreenImg);
+						}
+						
+					}
+				}
 				userTempInfoArr[n].val = val;
-				//userTempInfoArr[n].isDiffNum = true;
-				lastn = n;
-				//lastN = N ;
-				for (int i=0;i<3;i++){
-					if (userTempInfoArr[n].isDiffNum) continue;
-
-					BlockList[i+5]->Child[0]->FindArr(this->ScreenImg,true);
-					userTempInfoArr[i].val = BlockList[i+5]->Child[0]->GetDataNum();
+				for (int j = 0;j<4;j++){
+					if (j == n) continue;
+					ni = j+6;
+					BlockList[ni]->Child[0]->FindArr(this->ScreenImg,true);
+					userTempInfoArr[j].val = BlockList[ni]->Child[0]->GetDataNum();
 				}
 			}
-			**/
 			return;
 		}
 
@@ -239,22 +232,24 @@ void Monitor::StartRun( int & lastn,int &lastN ){
 			N = BlockList[9]->Child[1]->GetDataNum();
 		}			
 
-
-
 		if (lastn >=0 && lastn != n){
+			int val = -1;
 			if ( lastN == N ){
-				this->userTempInfoArr[n].peng++;
 				if (lastn != 3){
 					if (this->BlockList[lastn]->Coord.size()>0){
-						int val = this->BlockList[lastn]->Coord[0].v ;
-						SendData(Client,NULL,n,&val,1,2);
+						val = this->BlockList[lastn]->Coord[0].v ;
 					}
 				}else{
 					int val = this->BlockList[lastn]->backVal;
-					if (val >=0 && val < 27)SendData(Client,NULL,n,&val,1,2);
+					if (val > 26)val = -1;
 				}			 
+				if (val > -1){
+					SendData(Client,NULL,n,&val,1,2);
+					this->userTempInfoArr[n].peng++;
+				}
 			}
 		}
+		
 		//printf("send %d %d\r\n",this->BlockList[lastn]->Coord[0].v,n);
 		BlockList[n]->SendToServer(SendData,Client,0);				
 		lastN = N ;
@@ -371,10 +366,11 @@ bool Monitor::FindOut(){
 			if ( -1 != this->BlockList[8]->Child[16]->FindOne(this->ScreenImg,true)){
 				if (this->BlockList[8]->Child[16]->ClickCoordinate(val,1)) return true;
 			}
-
+			/**
 			Client->InitCallBack(CallBackEvent,BlockList[3]);
-			this->BlockList[3]->SendToServerNum(this->BlockList[8]->Child[0]->GetDataNum(),SendData,Client,9);
+			this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,9);
 			this->BlockList[3]->WaitEvent();
+			**/
 		} 
 	}
 	return true;
@@ -405,8 +401,18 @@ bool Monitor::FindSee(){
 	//this->BlockList[3]->ClearCoord();
 	this->userTempInfoArr[3].val = this->BlockList[8]->Child[0]->GetDataNum();
 	this->BlockList[3]->Coord.assign(this->BlockList[8]->Child[12]->Coord.begin(),this->BlockList[8]->Child[12]->Coord.end());
+	this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,4);
+
+
+	for (int n = 0;n<3;n++){
+		if (this->BlockList[n]->FindOne(this->ScreenImg,true) != -1){
+			BlockList[n]->SendToServer(SendData,Client,0);				
+			break;
+		}
+	}
+
 	Client->InitCallBack(CallBackEvent,this->BlockList[8]->Child[8]);
-	this->BlockList[3]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,7);
+	this->BlockList[8]->Child[8]->SendToServerNum(this->userTempInfoArr[3].val,SendData,Client,7);
 	this->BlockList[8]->Child[8]->WaitEvent();
 	return true;	
 }
@@ -415,7 +421,10 @@ void Monitor::InitUserTempInfoArr(){
 	for (int i = 0;i<4;i++){
 		this->userTempInfoArr[i].ishu = false;
 		this->userTempInfoArr[i].peng = 0;
-		this->userTempInfoArr[i].type = 0;
+		this->userTempInfoArr[i].type[0] = 0;
+		this->userTempInfoArr[i].type[1] = 0;
+		this->userTempInfoArr[i].type[2] = 0;
+		this->userTempInfoArr[i].type[3] = 0;
 		this->userTempInfoArr[i].val = 0;
 		this->userTempInfoArr[i].Class = -1;
 		this->userTempInfoArr[i].isDiffNum = false;

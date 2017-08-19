@@ -34,10 +34,10 @@ void  ClearSameTempleImg(char * Filepath){
 
 			}
 			if(isSave){
-			cvNamedWindow("contour1");
-			cvShowImage("contour1", img);  
-			cvWaitKey(0);
-			cvDestroyWindow("contour1");
+		//		cvNamedWindow("contour1");
+		//		cvShowImage("contour1", img);  
+		//		cvWaitKey(0);
+		//		cvDestroyWindow("contour1");
 			
 				TempleList.push_back( img );
 			}
@@ -45,7 +45,7 @@ void  ClearSameTempleImg(char * Filepath){
 		}  while (_findnext(handle, &fd)==0);
 		_findclose(handle);
 	}
-
+	TempleList.clear();
 
 }
 bool compRectX(CvRect a,CvRect b)
@@ -86,9 +86,9 @@ bool hBitmap2Ipls(HBITMAP hBmp,IplImage* dst ){
  
     int    nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel/8;
 	//int    nChannels = bmp.bmBitsPixel == 1 ? 1 : 4;
-    int    depth     = bmp.bmBitsPixel   == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
+    int    depth     = 8;//bmp.bmBitsPixel;//   == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
 	//printf("%d %d %d %d %d \r\n",bmp.bmBitsPixel,nChannels,depth,bmp.bmWidth, bmp.bmHeight );
-    IplImage *img=cvCreateImage(cvSize(bmp.bmWidth, bmp.bmHeight), depth,nChannels);
+    IplImage *img=cvCreateImage(cvSize(bmp.bmWidth, bmp.bmHeight), IPL_DEPTH_8U,nChannels);
 	
 
     
@@ -119,7 +119,7 @@ bool hBitmap2Ipls(HBITMAP hBmp,IplImage* dst ){
 	else if (nChannels == 3)
 		cvCvtColor(img,dst,CV_BGR2GRAY);
 	else if (nChannels == 4)
-		cvCvtColor(img,dst,CV_RGBA2GRAY);
+		cvCvtColor(img,dst,CV_BGRA2GRAY);
  
 	//cvSplit(img,dst,0,0,0);
 
@@ -135,21 +135,21 @@ IplImage* hBitmap2Ipl(HBITMAP hBmp )
     BITMAP bmp;
     GetObject(hBmp,sizeof(BITMAP),&bmp);
     int    nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel/8;
-    int    depth     = bmp.bmBitsPixel   == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
-    IplImage *img=cvCreateImage(cvSize(bmp.bmWidth, bmp.bmHeight), depth,nChannels);
+    int    depth     = 8;//bmp.bmBitsPixel;// == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
+    IplImage *img=cvCreateImage(cvSize(bmp.bmWidth, bmp.bmHeight), IPL_DEPTH_8U,nChannels);
     BYTE *pBuffer = new BYTE[bmp.bmHeight*bmp.bmWidth*nChannels];
 	GetBitmapBits(hBmp,bmp.bmHeight*bmp.bmWidth*nChannels,pBuffer);
 	memcpy(img->imageData,pBuffer,bmp.bmHeight*bmp.bmWidth*nChannels);
     delete pBuffer; 
 
-	IplImage *dst = cvCreateImage(cvGetSize(img),img->depth,1);
+	IplImage *dst = cvCreateImage(cvGetSize(img),depth,1);
 
 	if (nChannels == 2)
 		cvCvtColor(img,dst,CV_BGR5652GRAY);  
 	else if (nChannels == 3)
 		cvCvtColor(img,dst,CV_BGR2GRAY);
 	else if (nChannels == 4)
-		cvCvtColor(img,dst,CV_RGBA2GRAY);
+		cvCvtColor(img,dst,CV_BGRA2GRAY);
 	
 
 	//cvSplit(img,dst,0,0,0);

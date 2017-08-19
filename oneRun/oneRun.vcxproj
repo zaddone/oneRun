@@ -29,12 +29,14 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -42,6 +44,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -49,6 +52,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -68,9 +72,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv2\opencv\build\include\opencv2;C:\opencv2\opencv\build\include\opencv;C:\opencv2\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv2\opencv\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>E:\code\oneRun\x86\</OutDir>
+    <IncludePath>D:\code\opencv\include\opencv2;D:\code\opencv\include\opencv;D:\code\opencv\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\code\opencv\build\x64\vc11;$(LibraryPath)</LibraryPath>
+    <OutDir>d:\code\oneRun\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -86,9 +90,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>E:\code\oneRun\x64\</OutDir>
-    <IncludePath>C:\opencv2\opencv\build\include\opencv2;C:\opencv2\opencv\build\include\opencv;C:\opencv2\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv2\opencv\build\x64\vc10\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>d:\code\oneRun\x64\</OutDir>
+    <IncludePath>D:\code\opencv\include\opencv2;D:\code\opencv\include\opencv;D:\code\opencv\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\code\opencv\build\x64\vc11\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
